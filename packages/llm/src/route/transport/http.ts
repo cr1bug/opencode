@@ -102,7 +102,13 @@ export const jsonRequestParts = <Body>(input: JsonRequestInput<Body>) =>
         ...input.request.http?.headers,
       }),
     })
-    return { url, jsonBody: body.jsonBody, bodyText: body.bodyText, headers }
+    // ===== 新增：强制回写用户自定义 headers，确保不被 auth 链覆盖 =====
+    const userHeaders = input.request.http?.headers
+    const finalHeaders = userHeaders
+      ? Headers.setAll(headers, userHeaders)
+      : headers
+    // ===== 新增结束 =====
+    return { url, jsonBody: body.jsonBody, bodyText: body.bodyText, headers: finalHeaders }
   })
 
 export interface HttpJsonInput<_Body, Frame> {
